@@ -1,9 +1,10 @@
-extends Resource
+extends Node
 
 
 # Private imports
 
 const __PAL: Resource = preload("../pal/pal.gd")
+const __WebSocketConnection: Resource = __PAL.WebSocketConnection
 
 
 # Public imports
@@ -43,3 +44,191 @@ const StreamOfflineEvent: Resource = preload("./types/events.gd").StreamOfflineE
 const UserAuthorizationGrantEvent: Resource = preload("./types/events.gd").UserAuthorizationGrantEvent
 const UserAuthorizationRevokeEvent: Resource = preload("./types/events.gd").UserAuthorizationRevokeEvent
 const UserUpdateEvent: Resource = preload("./types/events.gd").UserUpdateEvent
+
+
+# Private constants
+
+const __EVENT_WSS_URL: String = "ws://127.0.0.1:25708"
+const __EVENT_HTTP_URL: String = "http://127.0.0.1:25707"
+
+# Private variables
+
+var __pal: __PAL
+
+var __broardcaster_user_id: String
+var __client_id: String
+var __access_token: String
+
+var __connection: __WebSocketConnection
+
+var __websocket_id: String
+var __websocket_frequency_min: float
+
+var __time_since_last_message: float = 0.0
+
+var __connections: Dictionary = {
+	# key: String - event
+	# value: [[FuncRef, Array - binds], ...]
+}
+
+
+# Lifecycle methods
+
+func _init(
+	_pal: __PAL,
+	_broadcaster_user_id: String,
+	_client_id: String,
+	_access_token: String
+) -> void:
+	__pal = _pal
+	__broardcaster_user_id = _broadcaster_user_id
+	__client_id = _client_id
+	__access_token = _access_token
+
+
+func _process(delta: float) -> void:
+	if !__connection:
+		return
+
+	__time_since_last_message += delta
+
+
+# Pubic methods
+
+func connect_event(
+	_event: String,
+	_target: Object,
+	_method: String,
+	_binds: Array = []
+) -> int:
+	# TODO: Check if event is a valid event
+	# return 1
+
+	if !__connection && !yield(__establish_connection(__EVENT_WSS_URL), "completed"):
+		return 2 # Some kind of error
+
+	if __connections.has(_event):
+		__connections[_event].append([
+			funcref(_target, _method),
+			_binds,
+		])
+
+		return OK
+
+	# TODO: Convert this to use API method
+	var response: __PAL.HTTPResponse = yield(
+		__pal.request(
+			"%s/helix/eventsub/subscriptions" % __EVENT_HTTP_URL,
+			{
+				"headers": {
+					"client-id": __client_id,
+					"authorization": "Bearer %s" % __access_token,
+					"content-type": "application/json",
+				},
+				"data": {
+					"type": _event,
+					"version": "1",
+					"condition": {
+						"broadcaster_user_id": __broardcaster_user_id,
+					},
+					"transport": {
+						"method": "websocket",
+						"id": __websocket_id,
+					},
+				},
+				"method": HTTPClient.METHOD_POST,
+				"use_ssl": false,
+			}
+		),
+		"completed"
+	)
+
+	if response.error:
+		return 3
+
+	if response.response_code != 200:
+		return 4
+
+	__connections[_event] = []
+	__connections[_event].append([
+		funcref(_target, _method),
+		_binds,
+	])
+
+	return OK
+
+
+# Private methods
+
+func __establish_connection(url: String) -> bool:
+	__connection = yield(__pal.establish_connection(url), "completed")
+
+	# TODO: Determine if reconnect should be tried
+	if !__connection.connected:
+		return false
+
+	# Wait for welcome message
+	var data_string: String = yield(__connection, "data_received")
+	var data: Dictionary = parse_json(data_string)
+
+	var type: String = data["metadata"]["message_type"]
+
+	if type != "websocket_welcome":
+		__connection.disconnect_socket()
+		__connection = null
+
+		return false
+
+	var websocket_data: Dictionary = data["payload"]["websocket"]
+
+	__websocket_id = websocket_data["id"]
+	__websocket_frequency_min = float(websocket_data["minimum_message_frequency_seconds"])
+
+	# Connect signal for future data
+	__connection.connect("data_received", self, "__data_received")
+
+	return true
+
+
+func __data_received(data_string: String) -> void:
+	var data: Dictionary =  parse_json(data_string)
+
+	# TODO: Replay detection / prevention, LRU queue
+
+	var type: String = data["metadata"]["message_type"]
+
+	match type:
+		"notification":
+			__handle_notification(data["payload"])
+
+	__time_since_last_message = 0.0
+
+
+func __handle_notification(payload: Dictionary) -> void:
+	var subscription_type: String = payload["subscription"]["type"]
+
+	var raw_event_data: Dictionary = payload["event"]
+
+	if __connections.has(subscription_type):
+		var name: String = "%sEvent" % subscription_type \
+			.replace(".", " ") \
+			.capitalize() \
+			.replace(" ", "") \
+			.replace("ChannelChannel", "Channel")
+		var event_resource: Resource = get(name)
+
+		if !event_resource:
+			return # TODO
+
+		var event_data: Reference = event_resource.new(raw_event_data)
+
+		for connection in __connections[subscription_type]:
+			var function: FuncRef = connection[0]
+			var binds: Array = connection[1]
+
+			if !function.is_valid():
+				continue # TODO: filter out invalid functions, close if none present
+
+			function.call_funcv([event_data] + binds)
+	else:
+		pass # TODO

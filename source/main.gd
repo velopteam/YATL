@@ -1,21 +1,70 @@
 extends Control
 
-const RequestFactory = preload("res://addons/yatl/pal/factories/request_factory.gd")
-const WebSocketFactory = preload("res://addons/yatl/pal/factories/web_socket_factory.gd")
+# Private variables
 
+var __yatl: YATL = YATL.new()
+
+
+const HypeTrainProgressEvent: Resource = preload("res://addons/yatl/event/types/events.gd").HypeTrainProgressEvent
+
+
+# Lifecycle methods
 
 func _ready() -> void:
-	var request_factory: RequestFactory = RequestFactory.new()
-	add_child(request_factory)
+	add_child(__yatl)
 
-	var a = yield(request_factory.request("https://httpstat.us/200"), "completed")
-	print(a.response_code)
+	var htpe: HypeTrainProgressEvent = HypeTrainProgressEvent.from_data(HypeTrainProgressEvent, {
+		"id": "123",
+		"top_contributions": [
+			{
+				"total": "5",
+			},
+			{
+				"total": "6",
+			},
+		],
+		"last_contribution": {
+			"total": 7
+		}
+	})
 
-	var b = yield(request_factory.request("https://httpstat.us/400"), "completed")
-	print(b.response_code)
+	print(htpe.id)
+	print(htpe.top_contributions[0].total)
+	print(htpe.top_contributions[0].total)
+	print(htpe.last_contribution.total)
 
-	var web_socket_factory: WebSocketFactory = WebSocketFactory.new()
-	add_child(web_socket_factory)
-
-	var c = yield(web_socket_factory.establish_connection("ws://test.we:8000"), "completed")
-	print(c.connected)
+#	var broadcaster_user_id: String = OS.get_environment("TWITCH_BROADCASTER_USER_ID")
+#	var client_id: String = OS.get_environment("TWITCH_CLIENT_ID")
+#	var access_token: String = OS.get_environment("TWITCH_ACCESS_TOKEN")
+##
+#	var event: YATL.Event = __yatl.initialize_event(
+#		broadcaster_user_id,
+#		client_id,
+#		access_token
+#	)
+#
+#	yield(get_tree().create_timer(1.0), "timeout")
+#
+#	var result = event.connect_event(
+#		"channel.channel_points_custom_reward_redemption.add",
+#		self,
+#		"__point_redemption"
+#	)
+#
+#	yield(result, "completed")
+#
+#	event.connect_event(
+#		"channel.follow",
+#		self,
+#		"__follow"
+#	)
+#
+#
+## Private methods
+#
+#func __follow(event: YATL.Event.ChannelFollowEvent) -> void:
+#	print("%s followed!" % event.user_name)
+#
+#
+#func __point_redemption(event: YATL.Event.ChannelPointsCustomRewardRedemptionAddEvent) -> void:
+#	print("%s redeemed: %s" % [event.user_name, event.reward.title])

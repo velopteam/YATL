@@ -1,53 +1,25 @@
-# Private classes
+# Private imports
 
-class __Base:
-	# Lifecycle methods
-
-	func _init(data: Dictionary) -> void:
-		var properties: Dictionary = {}
-
-		for property in get_property_list():
-			properties[property['name']] = property['type']
-
-		for property_name in data:
-			if !properties.has(property_name):
-				pass # TODO: Determine what happens here
-
-			if properties[property_name] == TYPE_OBJECT:
-				continue
-
-			set(property_name, data[property_name])
+const __DataType: Resource = preload("res://addons/yatl/pal/pal.gd").DataType
 
 
 # Public classes
 
-class BitsVoting extends __Base:
+class BitsVoting extends __DataType:
 	# Public variables
 
 	var is_enabled: bool
 	var amount_per_vote: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class ChannelPointsVoting extends __Base:
+class ChannelPointsVoting extends __DataType:
 	# Public variables
 
 	var is_enabled: bool
 	var amount_per_vote: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class Choice extends __Base:
+class Choice extends __DataType:
 	# Public variables
 
 	var id: String
@@ -57,13 +29,7 @@ class Choice extends __Base:
 	var votes: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class Contribution extends __Base:
+class Contribution extends __DataType:
 	# Public variables
 
 	var user_id: String
@@ -73,13 +39,7 @@ class Contribution extends __Base:
 	var total: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class Emote extends __Base:
+class Emote extends __DataType:
 	# Public variables
 
 	var begin: int
@@ -87,26 +47,14 @@ class Emote extends __Base:
 	var id: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class GlobalCooldown extends __Base:
+class GlobalCooldown extends __DataType:
 	# Public variables
 
 	var is_enabled: bool
 	var seconds: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class ImageURL extends __Base:
+class ImageURL extends __DataType:
 	# Public variables
 
 	var url_1x: String
@@ -114,55 +62,38 @@ class ImageURL extends __Base:
 	var url_4x: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class MaxPerStream extends __Base:
+class MaxPerStream extends __DataType:
 	# Public variables
 
 	var is_enabled: bool
 	var value: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class MaxPerUserPerStream extends __Base:
+class MaxPerUserPerStream extends __DataType:
 	# Public variables
 
 	var is_enabled: bool
 	var value: int
 
 
-	# Lifecycle methods
+class Message extends __DataType:
+	# Public imports
 
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
+	# TODO: Figure out how to import emotes
 
 
-class Message extends __Base:
 	# Public variables
 
 	var text: String
 	var emotes: Array
 
 
-	# Lifecycle methods
+class Outcome extends __DataType:
+	# Public imports
 
-	func _init(_data: Dictionary).(_data) -> void:
-		emotes = []
-
-		for emote in _data["emotes"]:
-			emotes.append(Emote.new(emote))
+	# TODO: Figure out how to import predictors
 
 
-class Outcome extends __Base:
 	# Public variables
 
 	var id: String
@@ -173,16 +104,7 @@ class Outcome extends __Base:
 	var top_predictors: Array
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		top_predictors = []
-
-		for predictor in _data["top_predictors"]:
-			top_predictors.append(Predictor.new(predictor))
-
-
-class Predictor extends __Base:
+class Predictor extends __DataType:
 	# Public variables
 
 	var user_id: String
@@ -192,13 +114,7 @@ class Predictor extends __Base:
 	var channel_points_used: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class Product extends __Base:
+class Product extends __DataType:
 	# Public variables
 
 	var name: String
@@ -207,22 +123,10 @@ class Product extends __Base:
 	var in_development: bool
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
-class Reward extends __Base:
+class Reward extends __DataType:
 	# Public variables
 
 	var id: String
 	var title: String
 	var cost: int
 	var prompt: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass

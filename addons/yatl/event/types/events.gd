@@ -1,14 +1,12 @@
 # Private imports
 
-const __Base: Resource = preload("./shared.gd").__Base
+const __DataType: Resource = preload("res://addons/yatl/pal/pal.gd").DataType
+
 
 # Public classes
 
-class Event extends __Base:
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
+class Event extends __DataType:
+	pass
 
 
 class ChannelBanEvent extends Event:
@@ -28,12 +26,6 @@ class ChannelBanEvent extends Event:
 	var is_permanent: bool
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class ChannelSubscribeEvent extends Event:
 	# Public variables
 
@@ -45,12 +37,6 @@ class ChannelSubscribeEvent extends Event:
 	var broadcaster_user_name: String
 	var tier: String
 	var is_gift: bool
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelCheerEvent extends Event:
@@ -67,12 +53,6 @@ class ChannelCheerEvent extends Event:
 	var bits: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class ChannelUpdateEvent extends Event:
 	# Public variables
 
@@ -84,12 +64,6 @@ class ChannelUpdateEvent extends Event:
 	var category_id: String
 	var category_name: String
 	var is_mature: bool
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelUnbanEvent extends Event:
@@ -106,12 +80,6 @@ class ChannelUnbanEvent extends Event:
 	var moderator_user_name: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class ChannelFollowEvent extends Event:
 	# Public variables
 
@@ -122,12 +90,6 @@ class ChannelFollowEvent extends Event:
 	var broadcaster_user_login: String
 	var broadcaster_user_name: String
 	var followed_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelRaidEvent extends Event:
@@ -142,12 +104,6 @@ class ChannelRaidEvent extends Event:
 	var viewers: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class ChannelModeratorAddEvent extends Event:
 	# Public variables
 
@@ -159,12 +115,6 @@ class ChannelModeratorAddEvent extends Event:
 	var user_name: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class ChannelModeratorRemoveEvent extends Event:
 	# Public variables
 
@@ -174,12 +124,6 @@ class ChannelModeratorRemoveEvent extends Event:
 	var user_id: String
 	var user_login: String
 	var user_name: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelPollBeginEvent extends Event:
@@ -204,18 +148,6 @@ class ChannelPollBeginEvent extends Event:
 	var ends_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		bits_voting = BitsVoting.new(_data["bits_voting"])
-		channel_points_voting = ChannelPointsVoting.new(_data["channe_points_voting"])
-
-		choices = []
-
-		for choice in _data["choices"]:
-			choices.append(Choice.new(choice))
-
-
 class ChannelPollProgressEvent extends Event:
 	# Public imports
 
@@ -236,18 +168,6 @@ class ChannelPollProgressEvent extends Event:
 	var channel_points_voting: ChannelPointsVoting
 	var started_at: String
 	var ends_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		bits_voting = BitsVoting.new(_data["bits_voting"])
-		channel_points_voting = ChannelPointsVoting.new(_data["channe_points_voting"])
-
-		choices = []
-
-		for choice in _data["choices"]:
-			choices.append(Choice.new(choice))
 
 
 class ChannelPollEndEvent extends Event:
@@ -271,18 +191,6 @@ class ChannelPollEndEvent extends Event:
 	var status: String
 	var started_at: String
 	var ended_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		bits_voting = BitsVoting.new(_data["bits_voting"])
-		channel_points_voting = ChannelPointsVoting.new(_data["channe_points_voting"])
-
-		choices = []
-
-		for choice in _data["choices"]:
-			choices.append(Choice.new(choice))
 
 
 class ChannelPointsCustomRewardAddEvent extends Event:
@@ -320,12 +228,11 @@ class ChannelPointsCustomRewardAddEvent extends Event:
 
 	# Lifecycle methods
 
-	func _init(_data: Dictionary).(_data) -> void:
-		max_per_stream = MaxPerStream.new(_data["max_per_stream"])
-		max_per_user_per_stream = MaxPerUserPerStream.new(_data["max_per_user_per_stream"])
-		image = ImageURL.new(_data["image"])
-		default_image = ImageURL.new(_data["default_image"])
-		global_cooldown = GlobalCooldown.new(_data["global_cooldown"])
+	func _get(property: String): # variant
+		if property == "Image":
+			return ImageURL
+
+		return null
 
 
 class ChannelPointsCustomRewardUpdateEvent extends Event:
@@ -363,12 +270,11 @@ class ChannelPointsCustomRewardUpdateEvent extends Event:
 
 	# Lifecycle methods
 
-	func _init(_data: Dictionary).(_data) -> void:
-		max_per_stream = MaxPerStream.new(_data["max_per_stream"])
-		max_per_user_per_stream = MaxPerUserPerStream.new(_data["max_per_user_per_stream"])
-		image = ImageURL.new(_data["image"])
-		default_image = ImageURL.new(_data["default_image"])
-		global_cooldown = GlobalCooldown.new(_data["global_cooldown"])
+	func _get(property: String): # variant
+		if property == "Image":
+			return ImageURL
+
+		return null
 
 
 class ChannelPointsCustomRewardRemoveEvent extends Event:
@@ -406,12 +312,11 @@ class ChannelPointsCustomRewardRemoveEvent extends Event:
 
 	# Lifecycle methods
 
-	func _init(_data: Dictionary).(_data) -> void:
-		max_per_stream = MaxPerStream.new(_data["max_per_stream"])
-		max_per_user_per_stream = MaxPerUserPerStream.new(_data["max_per_user_per_stream"])
-		image = ImageURL.new(_data["image"])
-		default_image = ImageURL.new(_data["default_image"])
-		global_cooldown = GlobalCooldown.new(_data["global_cooldown"])
+	func _get(property: String): # variant
+		if property == "Image":
+			return ImageURL
+
+		return null
 
 
 class ChannelPointsCustomRewardRedemptionAddEvent extends Event:
@@ -435,12 +340,6 @@ class ChannelPointsCustomRewardRedemptionAddEvent extends Event:
 	var redeemed_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		reward = Reward.new(_data["reward"])
-
-
 class ChannelPointsCustomRewardRedemptionUpdateEvent extends Event:
 	# Public imports
 
@@ -462,12 +361,6 @@ class ChannelPointsCustomRewardRedemptionUpdateEvent extends Event:
 	var redeemed_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		reward = Reward.new(_data["reward"])
-
-
 class ChannelPredictionBeginEvent extends Event:
 	# Public imports
 
@@ -484,15 +377,6 @@ class ChannelPredictionBeginEvent extends Event:
 	var outcomes: Array
 	var started_at: String
 	var locks_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		outcomes = []
-
-		for outcome in _data["outcomes"]:
-			outcomes.append(Outcome.new(outcome))
 
 
 class ChannelPredictionProgressEvent extends Event:
@@ -513,15 +397,6 @@ class ChannelPredictionProgressEvent extends Event:
 	var locks_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		outcomes = []
-
-		for outcome in _data["outcomes"]:
-			outcomes.append(Outcome.new(outcome))
-
-
 class ChannelPredictionLockEvent extends Event:
 	# Public imports
 
@@ -538,15 +413,6 @@ class ChannelPredictionLockEvent extends Event:
 	var outcomes: Array
 	var started_at: String
 	var locked_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		outcomes = []
-
-		for outcome in _data["outcomes"]:
-			outcomes.append(Outcome.new(outcome))
 
 
 class ChannelPredictionEndEvent extends Event:
@@ -569,15 +435,6 @@ class ChannelPredictionEndEvent extends Event:
 	var ended_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		outcomes = []
-
-		for outcome in _data["outcomes"]:
-			outcomes.append(Outcome.new(outcome))
-
-
 class ChannelSubscriptionEndEvent extends Event:
 	# Public variables
 
@@ -589,12 +446,6 @@ class ChannelSubscriptionEndEvent extends Event:
 	var broadcaster_user_name: String
 	var tier: String
 	var is_gift: bool
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelSubscriptionGiftEvent extends Event:
@@ -610,12 +461,6 @@ class ChannelSubscriptionGiftEvent extends Event:
 	var tier: String
 	var cumulative_total: int
 	var is_anonymous: bool
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class ChannelSubscriptionMessageEvent extends Event:
@@ -639,16 +484,10 @@ class ChannelSubscriptionMessageEvent extends Event:
 	var duration_months: int
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		message = Message.new(_data["message"])
-
-
 class DropEntitlementGrantEvent extends Event:
 	# Public classes
 
-	class Data extends __Base:
+	class Data extends __DataType:
 		# Public variables
 
 		var organization_id: String
@@ -667,15 +506,6 @@ class DropEntitlementGrantEvent extends Event:
 
 	var id: String
 	var data: Array
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		data = []
-
-		for raw_data in _data['data']:
-			data.append(Data.new(raw_data))
 
 
 class ExtensionBitsTransactionCreateEvent extends Event:
@@ -697,12 +527,6 @@ class ExtensionBitsTransactionCreateEvent extends Event:
 	var product: Product
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		product = Product.new(_data["product"])
-
-
 class GoalsEvent extends Event:
 	# Public variables
 
@@ -717,12 +541,6 @@ class GoalsEvent extends Event:
 	var target_amount: int
 	var started_at: String
 	var ended_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class HypeTrainBeginEvent extends Event:
@@ -744,17 +562,6 @@ class HypeTrainBeginEvent extends Event:
 	var last_contribution: Contribution
 	var started_at: String
 	var expires_at: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		last_contribution = Contribution.new(_data["last_contribution"])
-
-		top_contributions = []
-
-		for contribution in _data["top_contributions"]:
-			top_contributions.append(Contribution.new(contribution))
 
 
 class HypeTrainProgressEvent extends Event:
@@ -779,17 +586,6 @@ class HypeTrainProgressEvent extends Event:
 	var expires_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		last_contribution = Contribution.new(_data["last_contribution"])
-
-		top_contributions = []
-
-		for contribution in _data["top_contributions"]:
-			top_contributions.append(Contribution.new(contribution))
-
-
 class HypeTrainEndEvent extends Event:
 	# Public imports
 
@@ -810,15 +606,6 @@ class HypeTrainEndEvent extends Event:
 	var cooldown_ends_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		top_contributions = []
-
-		for contribution in _data["top_contributions"]:
-			top_contributions.append(Contribution.new(contribution))
-
-
 class StreamOnlineEvent extends Event:
 	# Public variables
 
@@ -830,24 +617,12 @@ class StreamOnlineEvent extends Event:
 	var started_at: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class StreamOfflineEvent extends Event:
 	# Public variables
 
 	var broadcaster_user_id: String
 	var broadcaster_user_login: String
 	var broadcaster_user_name: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class UserAuthorizationGrantEvent extends Event:
@@ -859,12 +634,6 @@ class UserAuthorizationGrantEvent extends Event:
 	var user_name: String
 
 
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
-
-
 class UserAuthorizationRevokeEvent extends Event:
 	# Public variables
 
@@ -872,12 +641,6 @@ class UserAuthorizationRevokeEvent extends Event:
 	var user_id: String
 	var user_login: String
 	var user_name: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
 
 
 class UserUpdateEvent extends Event:
@@ -888,9 +651,3 @@ class UserUpdateEvent extends Event:
 	var user_name: String
 	var email: String
 	var description: String
-
-
-	# Lifecycle methods
-
-	func _init(_data: Dictionary).(_data) -> void:
-		pass
